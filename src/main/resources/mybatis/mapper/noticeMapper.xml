@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mybatis.notice">
+
+
+
+<!-- 공지게시판 구성 (페이징에 필요한 정보) -->
+	<select id="selectCount" resultType="int">
+		select count(*) from notice
+	</select>
+
+	<select id="selectList" parameterType="HashMap" resultType="NoticeVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from notice order by idx desc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+	
+	
+<!-- find -->
+	<select id="findNoticeByIdx" parameterType="int" resultType="NoticeVO">
+	select * from notice where idx=#{idx}
+	</select>
+	
+<!-- UPDATE -->
+
+	<update id="updateNotice" parameterType="NoticeVO">
+	update notice set title=#{title}, context=#{context} where idx=#{idx}
+	</update>
+	<update id="updateNoticeCnt" parameterType="int">
+	update notice set cnt=cnt+1 where idx=#{idx}
+	</update>
+	
+<!-- INSERT -->
+
+	<insert id="insertNotice" parameterType="HashMap">
+	insert into notice(idx,title,context,regdate,cnt) 
+	values(notice_idx_seq.nextval,#{title},#{context},sysdate,0)
+	</insert>
+
+<!-- DELETE -->
+	<delete id="deleteNotice" parameterType="int">
+	delete from notice where idx=#{idx}
+	</delete>
+		
+	
+</mapper>

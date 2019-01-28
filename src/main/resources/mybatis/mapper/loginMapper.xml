@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mybatis.login">
+
+<!-- PersonVO의idx값을, FamilyVO의personidx로 받아 검색하는것 -->
+	<select id="countFamilyByPersonidx" parameterType="int" resultType="int">
+	select count(*) from family where personidx=#{idx}
+	</select>
+	<select id="countFamilyById" parameterType="HashMap" resultType="int">
+	select count(*) from family where id=#{id}
+	</select>
+	
+	<select id="findFamilyById" parameterType="HashMap" resultType="FamilyVO">
+	select * from family where id=#{id}
+	</select>
+	<select id="findFamilyByPersonIdx" parameterType="int" resultType="FamilyVO">
+	select * from family where personidx=#{personidx}
+	</select>
+	
+
+
+<!-- UPDATE -->
+	<update id="resetFamilyPassword" parameterType="int">
+	update family set password='0000' where idx=#{idx}
+	</update>
+
+<!-- INSERT -->
+	<insert id="insertFamily" parameterType="FamilyVO">
+	insert into family(idx,personidx,id,password,phone,temp1)
+	values(family_idx_seq.nextval,#{personidx},#{id},#{password},#{phone},'1')
+	</insert>
+
+</mapper>

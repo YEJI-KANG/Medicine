@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mybatis.qna">
+
+
+
+<!-- 페이징 -->
+	<select id="selectQCount" resultType="int">
+		select count(*) from question
+	</select>
+	<select id="selectQList" parameterType="HashMap" resultType="QuestionVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from question order by idx desc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+
+<!-- SELECT -->
+	<select id="selectAnswer" parameterType="int" resultType="AnswerVO">
+		select * from answer where qidx=#{qidx}
+	</select>
+	<select id="countQuestion" parameterType="int" resultType="int">
+		select count(*) from question where fidx=#{fidx} 
+	</select>
+	<select id="selectQuestion" parameterType="Hashmap" resultType="QuestionVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from question where fidx=#{fidx} order by idx desc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+	<select id="countAnswer" parameterType="int" resultType="int">
+		select count(*) from answer where qidx=#{qidx} 
+	</select>
+
+
+<!-- UPDATE -->
+	<update id="updateQuestion" parameterType="QuestionVO">
+	update question set qmemo=#{qmemo} where idx=#{idx}
+	</update>
+	<update id="updateAnswer" parameterType="AnswerVO">
+	update answer set amemo=#{amemo} where idx=#{idx}
+	</update>
+
+
+<!-- INSERT -->
+	<insert id="insertQuestion" parameterType="QuestionVO">
+		insert into question(idx,fidx,qmemo,qdate) 
+		values(question_idx_seq.nextval,#{fidx},#{qmemo},sysdate)
+	</insert>
+	<insert id="insertAnswer" parameterType="AnswerVO">
+		insert into answer(idx,qidx,amemo,adate) 
+		values(answer_idx_seq.nextval,#{qidx},#{amemo},sysdate)
+	</insert>
+	
+
+<!-- DELETE -->
+	<delete id="deleteQuestion" parameterType="int">
+		delete from question where idx=#{idx}
+	</delete>	
+	<delete id="deleteAnswer" parameterType="int">
+		delete from answer where idx=#{idx}
+	</delete>	
+	
+	
+	<select id="findFamilyByIdx" parameterType="int" resultType="FamilyVO">
+	select * from family where idx=#{idx}
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mybatis.withdrawal">
+
+	<insert id="insertWithdrawal" parameterType="WithdrawalVO">
+		insert into withdrawal(idx,wdate,fidx,personidx,password,phone) 
+		values(withdrawal_idx_seq.nextval,sysdate,#{fidx},#{personidx},#{password},#{phone})
+	</insert>
+
+	<update id="withdrawFamily" parameterType="String">
+		update family set personidx='0',password='0',phone='00000000000',temp1='0' where id=#{value}
+	</update>
+
+
+</mapper>

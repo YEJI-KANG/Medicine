@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mybatis.prelist">
+
+
+<!-- 조제게시판 구성 (페이징에 필요한 정보) -->
+	<select id="selectCount" resultType="int">
+		select count(*) from prelist
+	</select>
+
+	<select id="selectList" parameterType="HashMap" resultType="PrelistVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from prelist order by idx desc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+	
+	
+	<select id="searchList1" parameterType="HashMap" resultType="PrelistVO">
+		select R.*
+		from(
+				select rownum rnum, Q.*
+				from (	
+						select l.IDX,l.personidx,NAME,IDNUM1,IDNUM2,predate,hospital,price 
+						from person p, prelist l 
+						where p.idx=l.personidx AND p.name like #{search}
+						order by l.idx asc) Q
+				where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+
+	<select id="searchList2" parameterType="HashMap" resultType="PrelistVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from prelist where hospital like #{search} order by idx asc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+	
+	<select id="searchList3" parameterType="HashMap" resultType="PrelistVO">
+		select R.*
+		from(
+				select rownum rnum, Q.*
+				from (	
+						select distinct l.IDX,l.personidx,predate,hospital,price
+						from drug d, prelist l 
+						where l.idx=d.listidx AND d.drugname like #{search}
+						order by l.idx asc) Q
+				where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+
+<!-- 조제게시판에 보이는 추가prelistVO값 얻기 -->
+	<select id="findPersonByFK" parameterType="int" resultType="PersonVO">
+		select * from person where idx=#{personidx}
+	</select>
+	<select id="findPersonByNameId" parameterType="PersonVO" resultType="PersonVO">
+		select * from person where name=#{name} and idnum1=#{idnum1} and idnum2=#{idnum2}
+	</select>
+	<select id="findPrelistByDateHos" parameterType="PrelistVO" resultType="PrelistVO">
+		select * from prelist where predate=#{predate} and personidx=#{personidx} and hospital=#{hospital}
+	</select>
+	<select id="findPrelistByIdx" parameterType="int" resultType="PrelistVO">
+		select * from prelist where idx=#{idx}
+	</select>
+
+	
+	
+	
+<!-- 같은사람이 있는가? 찾기 -->
+	<select id="countPersonByNameId" parameterType="PersonVO" resultType="int">
+	select count(*) from person where name=#{name} and idnum1=#{idnum1} and idnum2=#{idnum2}
+	</select>
+	<select id="countDrugByNameHow" parameterType="DrugVO" resultType="int">
+	select count(*) from drug where listidx=#{listidx} and drugname=#{drugname} and how=#{how}
+	</select>
+	
+		
+<!-- 더보기 누르면 약리스트 보이기 -->
+<!--  prelist의 idx로 druglist 구하기 -->
+	<select id="findDrugListByFK" parameterType="int" resultType="DrugVO">
+		select * from drug where listidx=#{idx} order by idx
+	</select>
+	<select id="findDrugByNameHow" parameterType="DrugVO" resultType="DrugVO">
+		select * from drug where listidx=#{listidx} and drugname=#{drugname} and how=#{how}
+	</select>
+	
+	
+
+<!-- 조제입력폼입력에 들어가는 정보 -->
+	<insert id="insertPerson" parameterType="PersonVO">
+	insert into person(idx,name,idnum1,idnum2,point,temp1)
+	values(person_idx_seq.nextval,#{name},#{idnum1},#{idnum2},100,'1')
+	</insert>
+	<insert id="insertPrelist" parameterType="PrelistVO">
+	insert into prelist(idx,personidx,predate,hospital,price)
+	values(prelist_idx_seq.nextval,#{personidx},#{predate},#{hospital},#{price})
+	</insert>
+	<insert id="insertDrug" parameterType="DrugVO">
+	insert into drug(idx,listidx,drugname,how)
+	values(drug_idx_seq.nextval,#{listidx},#{drugname},#{how})
+	</insert>
+
+<!-- UPDATE TEMP1(약국prelist갯수/약국방문횟수) 카운트저장 -->
+	<update id="updatePersonTempCount" parameterType="int">
+	update person set temp1=TO_CHAR(TO_NUMBER(temp1)+1) where idx=#{personidx}
+	</update>
+	<update id="updatePersonTempCountMinus" parameterType="int">
+	update person set temp1=TO_CHAR(TO_NUMBER(temp1)-1) where idx=#{personidx}
+	</update>
+	<update id="updatePersonPointPlus" parameterType="int">
+	update person set point=point+100 where idx=#{idx}
+	</update>
+	<update id="updatePersonPointMinus" parameterType="int">
+	update person set point=point-100 where idx=#{idx}
+	</update>
+	
+	
+	
+	
+	
+	<update id="updatePrelist" parameterType="PrelistVO">
+	update prelist set predate=#{predate},personidx=#{personidx},hospital=#{hospital},price=#{price} where idx=#{idx}
+	</update>
+	<update id="updatePerson" parameterType="PersonVO">
+	update person set name=#{name},idnum1=#{idnum1},idnum2=#{idnum2} where idx=#{idx}
+	</update>
+	<update id="updateDrug" parameterType="DrugVO">
+	update drug set listidx=#{listidx},drugname=#{drugname},how=#{how} where idx=#{idx}
+	</update>
+
+<!-- DELETE -->
+	<delete id="deletePerson" parameterType="int">
+	delete from person where idx=#{idx}
+	</delete>
+	<delete id="deleteDrug" parameterType="int">
+	delete from drug where idx=#{idx}
+	</delete>
+	<delete id="deleteDrugByListidx" parameterType="int">
+	delete from drug where listidx=#{listidx}
+	</delete>
+	<delete id="deletePrelist" parameterType="int">
+	delete from prelist where idx=#{idx}
+	</delete>
+
+
+<!-- USER -->
+<!-- Session에서 받은 id로 해당 user의 prelist 구해오기 -->
+
+	<select id="selectMyCount" parameterType="int" resultType="int">
+	select count(*) from prelist where personidx=#{personidx}
+	</select>
+	
+	<select id="selectMyList" parameterType="HashMap" resultType="PrelistVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from prelist where personidx=#{personidx} order by idx desc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+	
+	
+</mapper>

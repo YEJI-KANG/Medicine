@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="mybatis.family">
+
+
+
+<!-- 조제게시판 구성 (페이징에 필요한 정보) -->
+	<select id="selectCount" resultType="int">
+		select count(*) from family where personidx!=0
+	</select>
+
+	<select id="selectList" parameterType="HashMap" resultType="FamilyVO">
+		select R.*
+		from
+			(select rownum rnum, Q.*
+			from (select * from family where temp1='1' order by idx asc) Q
+			where <![CDATA[rownum <= #{endNo}) R]]>
+		where <![CDATA[rnum >= #{startNo}]]>
+	</select>
+
+
+
+<!-- UPDATE (user에서 account update 부분) -->
+	
+	<update id="updateFamilyByUser" parameterType="HashMap">
+	update family set password=#{password},phone=#{phone} where id=#{id}
+	</update>
+	<update id="updateFamilyByAdmin" parameterType="HashMap">
+	update family set password=#{password} where id='admin'
+	</update>
+	
+	<update id="updatePersonPointMinus500" parameterType="HashMap">
+	update person set point=#{point}-500 where idx=#{idx}
+	</update>
+
+	
+	
+	
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+ 
+ 
+<!-- 데코레이터 기본 폴더 -->
+<decorators defaultdir="/WEB-INF/layout"> 
+ 
+<!-- 예외 URL 패턴 -->
+<!-- Sitemesh안쓸 URL패턴. 해당문자열이 들어간URL은 Sitemesh 사용안함 -->
+ 	<excludes>
+     	<pattern>*Check*</pattern>
+     	<pattern>*Info*</pattern>
+ 	</excludes>
+ 
+  
+<!-- 데코레이터 -->
+<!-- header body footer -->
+
+ 	<decorator name="menuYes" page="menuYes.jsp">
+  		<pattern>*</pattern>
+ 	</decorator>
+ 	<decorator name="menuNo" page="menuNo.jsp">
+  		<pattern>/login</pattern>
+  		<pattern>/join</pattern>
+  		<pattern>/find</pattern>
+ 	</decorator>
+
+</decorators>
